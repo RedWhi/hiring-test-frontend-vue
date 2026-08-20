@@ -19,7 +19,9 @@
           @clear-search="clearSearch"
         />
 
-        <user-list :users="filteredItems" />
+        <empty-state v-if="searchQuery.trim() && !filteredItems.length" />
+       
+        <user-list v-else :users="filteredItems" />
       </template>
     </template>
   </div>
@@ -32,6 +34,7 @@ import 'vue3-loading-overlay/dist/vue3-loading-overlay.css'
 import UserFilters from './components/UserFilters.vue'
 import UserList from './components/UserList.vue'
 import ErrorMessage from './components/ErrorMessage.vue'
+import EmptyState from './components/EmptyState.vue'
 import { useUsers } from './composables/useUsers.js'
 import { useSearch } from './composables/useSearch.js'
 

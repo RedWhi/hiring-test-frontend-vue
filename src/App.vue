@@ -25,35 +25,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 
 import { fetchUsers } from './api/mock.js'
 
 import UserFilters from './components/UserFilters.vue'
+import { useSearch } from './composables/useSearch.js'
 
 const users = ref([])
-const searchQuery = ref('')
-const selectedField = ref('name')
-
-const filteredItems = computed(() => {
-  const query = searchQuery.value.trim().toLowerCase()
-
-  if (!query) {
-    return users.value
-  }
-
-  const fields = [selectedField.value]
-
-  return users.value.filter((user) =>
-    fields.some((field) =>
-      (user[field] ?? '').toLowerCase().includes(query)
-    )
-  )
-})
-
-function clearSearch() {
-  searchQuery.value = ''
-}
+const { searchQuery, selectedField, filteredItems, clearSearch } = useSearch(users)
 
 onMounted(() => {
   fetchUsers().then((data) => {

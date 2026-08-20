@@ -1,31 +1,46 @@
 <template>
   <div class="app">
-    <h1>Users</h1>
-
-    <user-filters
-      v-model:search-query="searchQuery"
-      v-model:selected-field="selectedField"
-      :results-count="filteredItems.length"
-      @clear-search="clearSearch"
+    <loading
+      :active="isLoading"
+      :can-cancel="false"
+      :is-full-page="true"
     />
 
-    <div class="users-list">
-      <div v-for="user in filteredItems" :key="user.id" class="user-item">
-        <div class="user-name">{{ user.name }}</div>
+    <template v-if="!isLoading">
+      <h1>Users</h1>
 
-        <div class="user-email">{{ user.email }}</div>
+      <p v-if="error" class="error">{{ error }}</p>
 
-        <div class="user-meta">
-          <span class="badge">{{ user.role }}</span>
-          <span class="status" :class="user.status">{{ user.status }}</span>
+      <template v-else>
+        <user-filters
+          v-model:search-query="searchQuery"
+          v-model:selected-field="selectedField"
+          :results-count="filteredItems.length"
+          @clear-search="clearSearch"
+        />
+
+        <div class="users-list">
+          <div v-for="user in filteredItems" :key="user.id" class="user-item">
+            <div class="user-name">{{ user.name }}</div>
+
+            <div class="user-email">{{ user.email }}</div>
+
+            <div class="user-meta">
+              <span class="badge">{{ user.role }}</span>
+              <span class="status" :class="user.status">{{ user.status }}</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </template>
+    </template>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+
+import Loading from 'vue3-loading-overlay'
+import 'vue3-loading-overlay/dist/vue3-loading-overlay.css'
 
 import { fetchUsers } from './api/mock.js'
 
@@ -33,12 +48,24 @@ import UserFilters from './components/UserFilters.vue'
 import { useSearch } from './composables/useSearch.js'
 
 const users = ref([])
+const isLoading = ref(true)
+const error = ref(null)
 const { searchQuery, selectedField, filteredItems, clearSearch } = useSearch(users)
 
 onMounted(() => {
-  fetchUsers().then((data) => {
-    users.value = data
-  })
+  isLoading.value = true
+  error.value = null
+
+  fetchUsers()
+    .then((data) => {
+      users.value = data
+    })
+    .catch((err) => {
+      error.value = err.message
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
 })
 </script>
 
@@ -53,6 +80,13 @@ onMounted(() => {
 h1 {
   color: #333;
   margin-bottom: 20px;
+}
+
+.error {
+  padding: 12px;
+  border-radius: 6px;
+  background: #ffebee;
+  color: #d32f2f;
 }
 
 .users-list {

@@ -2,11 +2,14 @@
   <form class="filters" @submit.prevent>
     <input
       id="user-search-query"
-      v-model="query"
       class="filters__query"
       type="search"
       placeholder="Search users..."
+      :value="searchQuery"
+      @input="$emit('update:searchQuery', $event.target.value)"
     />
+
+    <button type="button" @click="$emit('clear-search')">Clear</button>
 
     <div class="filters__fields">
       <label>
@@ -14,7 +17,7 @@
           id="filter-field-name"
           type="checkbox"
           :checked="selectedField === 'name'"
-          @change="selectedField = 'name'"
+          @change="$emit('update:selectedField', 'name')"
         />
         Name
       </label>
@@ -24,7 +27,7 @@
           id="filter-field-email"
           type="checkbox"
           :checked="selectedField === 'email'"
-          @change="selectedField = 'email'"
+          @change="$emit('update:selectedField', 'email')"
         />
         Email
       </label>
@@ -34,7 +37,7 @@
           id="filter-field-role"
           type="checkbox"
           :checked="selectedField === 'role'"
-          @change="selectedField = 'role'"
+          @change="$emit('update:selectedField', 'role')"
         />
         Role
       </label>
@@ -44,19 +47,37 @@
           id="filter-field-status"
           type="checkbox"
           :checked="selectedField === 'status'"
-          @change="selectedField = 'status'"
+          @change="$emit('update:selectedField', 'status')"
         />
         Status
       </label>
     </div>
+
+    <div>Found: {{ resultsCount }}</div>
   </form>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+defineProps({
+  searchQuery: {
+    type: String,
+    default: '',
+  },
+  selectedField: {
+    type: String,
+    default: 'name',
+  },
+  resultsCount: {
+    type: Number,
+    default: 0,
+  },
+})
 
-const query = ref('')
-const selectedField = ref('name')
+defineEmits([
+  'update:searchQuery',
+  'update:selectedField',
+  'clear-search'
+])
 </script>
 
 <style scoped>

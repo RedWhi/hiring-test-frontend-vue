@@ -2,14 +2,19 @@
   <div class="app">
     <h1>Users</h1>
 
-    <user-filters />
+    <user-filters
+      v-model:search-query="searchQuery"
+      v-model:selected-field="selectedField"
+      :results-count="filteredItems.length"
+      @clear-search="clearSearch"
+    />
 
     <div class="users-list">
-      <div v-for="user in users" :key="user.id" class="user-item">
+      <div v-for="user in filteredItems" :key="user.id" class="user-item">
         <div class="user-name">{{ user.name }}</div>
 
         <div class="user-email">{{ user.email }}</div>
-        
+
         <div class="user-meta">
           <span class="badge">{{ user.role }}</span>
           <span class="status" :class="user.status">{{ user.status }}</span>
@@ -20,13 +25,35 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 import { fetchUsers } from './api/mock.js'
 
 import UserFilters from './components/UserFilters.vue'
 
 const users = ref([])
+const searchQuery = ref('')
+const selectedField = ref('name')
+
+const filteredItems = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+
+  if (!query) {
+    return users.value
+  }
+
+  const fields = [selectedField.value]
+
+  return users.value.filter((user) =>
+    fields.some((field) =>
+      (user[field] ?? '').toLowerCase().includes(query)
+    )
+  )
+})
+
+function clearSearch() {
+  searchQuery.value = ''
+}
 
 onMounted(() => {
   fetchUsers().then((data) => {

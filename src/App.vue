@@ -1,10 +1,15 @@
 <template>
   <div class="app">
     <h1>Users</h1>
+
+    <user-filters />
+
     <div class="users-list">
       <div v-for="user in users" :key="user.id" class="user-item">
         <div class="user-name">{{ user.name }}</div>
+
         <div class="user-email">{{ user.email }}</div>
+        
         <div class="user-meta">
           <span class="badge">{{ user.role }}</span>
           <span class="status" :class="user.status">{{ user.status }}</span>
@@ -16,7 +21,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+
 import { fetchUsers } from './api/mock.js'
+
+import UserFilters from './components/UserFilters.vue'
 
 const users = ref([])
 
